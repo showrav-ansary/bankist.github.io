@@ -82,7 +82,7 @@ const displayMovements = function (movements, sort = false) {
         const type = movement > 0 ? 'deposit' : 'withdrawal';
         const html = `
         <div class="movements__row">
-        <div class="movements__type movements__type--${type}">${index+1} ${type}</div>
+        <div class="movements__type movements__type--${type}">${index + 1} ${type}</div>
         <div class="movements__value">${movement}</div>
         </div>
         `;
@@ -91,20 +91,23 @@ const displayMovements = function (movements, sort = false) {
 
     });
 }
-displayMovements(account1.movements);
 
-const calcDisplaySummary = function (movements) {
-    const incomes = movements
+
+
+
+
+const calcDisplaySummary = function (account) {
+    const incomes = account.movements
         .filter(mov => mov > 0)
         .reduce((acc, mov) => acc + mov, 0);
     labelSumIn.textContent = `${incomes}€`;
 
-    const out = movements
+    const out = account.movements
         .filter(mov => mov < 0)
         .reduce((acc, mov) => acc + mov, 0);
     labelSumOut.textContent = `${Math.abs(out)}€`;
 
-    const interest = movements
+    const interest = account.movements
         .filter(mov => mov > 0)
         .map(deposit => (deposit * 1.2) / 100)
         .filter(deposit => deposit >= 1)
@@ -112,16 +115,16 @@ const calcDisplaySummary = function (movements) {
     labelSumInterest.textContent = `${interest}€`;
 }
 
-calcDisplaySummary(account1.movements);
 
-const createUserNames = (users) => 
-    users.forEach(user =>{
-        user.username = 
-        user.owner
-        .toLowerCase()
-        .split(' ')
-        .map(name => name[0])
-        .join('');
+
+const createUserNames = (users) =>
+    users.forEach(user => {
+        user.username =
+            user.owner
+                .toLowerCase()
+                .split(' ')
+                .map(name => name[0])
+                .join('');
     });
 
 createUserNames(accounts);
@@ -131,15 +134,28 @@ const calcDisplayBalance = function (acc) {
     labelBalance.textContent = `${acc.balance}€`;
 }
 
-calcDisplayBalance(account1);
+
 
 const totalDepositsUSD =
     movements
-    .filter(mov => mov > 0)
-    .map(mov => mov * 1.1)
-    .reduce((acc, mov) => acc + mov, 0);
+        .filter(mov => mov > 0)
+        .map(mov => mov * 1.1)
+        .reduce((acc, mov) => acc + mov, 0);
 
-console.log(totalDepositsUSD);
 
-const account = accounts.find(acc => acc.owner === 'Jessica Davis');
+let currentAccount;
 
+btnLogin.addEventListener('click', function (e) {
+    e.preventDefault();
+    currentAccount = accounts.find(acc => acc.username === inputLoginUsername.value);
+    if (currentAccount?.pin === Number(inputLoginPin.value)) {
+        labelWelcome.textContent = `Welcome back, ${currentAccount.owner.split(' ')[0]}`;
+        containerApp.style.opacity = 100;
+        inputLoginUsername.value = inputLoginPin.value = '';
+        inputLoginPin.blur();
+        displayMovements(currentAccount.movements);
+        calcDisplayBalance(currentAccount);
+        calcDisplaySummary(currentAccount);
+
+    }
+});
