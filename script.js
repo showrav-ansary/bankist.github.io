@@ -143,6 +143,14 @@ const totalDepositsUSD =
         .reduce((acc, mov) => acc + mov, 0);
 
 
+
+const updateUI = function (account) {
+    displayMovements(account.movements);
+    calcDisplayBalance(account);
+    calcDisplaySummary(account);
+
+}
+
 let currentAccount;
 
 btnLogin.addEventListener('click', function (e) {
@@ -153,9 +161,59 @@ btnLogin.addEventListener('click', function (e) {
         containerApp.style.opacity = 100;
         inputLoginUsername.value = inputLoginPin.value = '';
         inputLoginPin.blur();
-        displayMovements(currentAccount.movements);
-        calcDisplayBalance(currentAccount);
-        calcDisplaySummary(currentAccount);
 
+        updateUI(currentAccount)
     }
 });
+
+
+btnTransfer.addEventListener('click', function (e) {
+    e.preventDefault();
+    const amount = Number(inputTransferAmount.value);
+    const receiver = accounts.find(acc => acc.username === inputTransferTo.value);
+    inputTransferAmount.value = inputTransferTo.value = '';
+
+    if (
+        receiver
+        && amount > 0
+        && currentAccount.balance >= amount
+        && receiver.username !== currentAccount.username
+    ) {
+        currentAccount.movements.push(-amount);
+        receiver.movements.push(amount);
+        updateUI(currentAccount);
+    }
+});
+
+btnLoan.addEventListener('click', function(e){
+    e.preventDefault();
+
+    const amount = Number(inputLoanAmount.value);
+    if (
+        amount > 0
+        && currentAccount.movements.some(
+            movement => movement >= amount * 0.1
+        )
+    ){
+        currentAccount.movements.push(amount);
+        updateUI(currentAccount);
+    }
+    inputLoanAmount.value = '';
+
+});
+
+btnClose.addEventListener('click', function(e){
+    e.preventDefault();
+    if(
+        inputCloseUsername.value === currentAccount.username
+        && Number(inputClosePin.value) === currentAccount.pin
+    ){
+        const index = accounts.findIndex(
+            account => account.username === currentAccount.username
+        );
+        accounts.splice(index, 1);
+
+        containerApp.style.opacity = 0;
+    }
+    inputCloseUsername.value = inputClosePin.value = '';
+}); 
