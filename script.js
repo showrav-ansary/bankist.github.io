@@ -81,19 +81,25 @@ const inputClosePin = document.querySelector('.form__input--pin');
 /////////////////////////////////////////////////
 // Functions
 
-const displayMovements = function (movements, sort = false) {
+const displayMovements = function (account, sort = false) {
 	containerMovements.innerHTML = '';
 
-	const movs = sort ? movements.slice().sort((a, b) => a - b) : movements;
+	const movs = sort ? account.movements.slice().sort((a, b) => a - b) : account.movements;
 
 	movs.forEach(function (mov, i) {
 		const type = mov > 0 ? 'deposit' : 'withdrawal';
 
+		const date = new Date(account.movementsDates[i]);
+		const day = `${date.getDate()}`.padStart(2, 0);
+		const month = `${date.getMonth() + 1}`.padStart(2, 0);
+		const year = date.getFullYear();
+		const displayDate = `${day}/${month}/${year}`;
+
 		const html = `
         <div class="movements__row">
-          <div class="movements__type movements__type--${type}">${i + 1
-			} ${type}</div>
-          <div class="movements__value">${mov.toFixed(2)}€</div>
+          	<div class="movements__type movements__type--${type}">${i + 1} ${type}</div>
+			<div class="movements__date">${displayDate}</div>
+          	<div class="movements__value">${mov.toFixed(2)}€</div>
         </div>
       `;
 
@@ -141,7 +147,7 @@ createUsernames(accounts);
 
 const updateUI = function (acc) {
 	// Display movements
-	displayMovements(acc.movements);
+	displayMovements(acc);
 
 	// Display balance
 	calcDisplayBalance(acc);
@@ -150,9 +156,15 @@ const updateUI = function (acc) {
 	calcDisplaySummary(acc);
 };
 
-///////////////////////////////////////
+/////////////////////////////////////// 
 // Event handlers
 let currentAccount;
+
+currentAccount = account1;
+updateUI(currentAccount);
+containerApp.style.opacity = 100;
+
+
 
 btnLogin.addEventListener('click', function (e) {
 	// Prevent form from submitting
@@ -255,4 +267,4 @@ labelBalance.addEventListener('click', function () {
 		if (i % 2 === 0) row.style.backgroundColor = 'orangered';
 	}
 	)
-});
+}); 
